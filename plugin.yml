@@ -1,0 +1,6 @@
+name: EcoAnalytics
+main: me.daniel.eco.EcoPlugin
+version: 1.0
+author: Danny
+api-version: 1.13
+depend: [Essentials]
