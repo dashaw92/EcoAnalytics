@@ -4,13 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import me.daniel.eco.EcoPlugin;
+import net.md_5.bungee.api.ChatColor;
 
-public class ConfigApi {
+public final class ConfigApi {
 	
 	private static final String MATERIAL_PATH = "%s";
 	private static final String AMOUNT_PATH = "%s.total";
@@ -52,12 +56,47 @@ public class ConfigApi {
     	save();
     }
     
+    public int getAmountOfKeys() {
+        return yml.getKeys(false).size();
+    }
+    
+    public MaterialEntry[] getAllEntries() {
+        MaterialEntry[] arr = new MaterialEntry[getAmountOfKeys()];
+        String[] keys = yml.getKeys(false).stream().sorted().toArray(String[]::new);
+        int index = 0;
+        
+        for(String mat_name : keys) {
+            Material material = Material.matchMaterial(mat_name);
+            int amount_sold = getAmount(String.format(AMOUNT_PATH, mat_name));
+            BigDecimal value = getValue(String.format(VALUE_PATH, mat_name));
+            
+            arr[index] = new MaterialEntry(material, amount_sold, value);
+            index++;
+        }
+        
+        return arr;
+    }
+    
     public void save() {
     	try {
     		yml.save(file);
     	} catch(IOException e) {
     		EcoPlugin.instance.getLogger().severe("Could not save to " + file.getAbsolutePath());
     	}
+    }
+    
+    public void reset(CommandSender sender) {
+        file.delete();
+        yml = YamlConfiguration.loadConfiguration(file);
+        
+        String name = ChatColor.RED + "[CONSOLE]";
+        if(sender instanceof Player) {
+            name = ((Player)sender).getDisplayName();
+        }
+        
+        String msg = String.format("%s[EcoAnalytics] Data reset by %s%s.", ChatColor.YELLOW, name, ChatColor.YELLOW); 
+        Bukkit.broadcast(msg, "ntx.eco");
+        Bukkit.getConsoleSender().sendMessage(msg);
     }
     
     private int getAmount(String path) {

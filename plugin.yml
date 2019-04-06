@@ -4,3 +4,19 @@ version: 1.0
 author: Danny
 api-version: 1.13
 depend: [Essentials]
+commands:
+  eareset:
+    description: Reset the data
+    usage: /<command>
+    aliases: [ear, ereset, datareset, dreset]
+  eadata:
+    description: View the data
+    usage: /<command>
+    aliases: [ead, data, dview, viewdata, viewd, viewea, ea]
+permissions:
+   ntx.eco:
+      description: Gives access to the eadata command
+      children:
+         ntx.eco.reset: false
+   ntx.eco.reset:
+      description: Gives access to the eareset command

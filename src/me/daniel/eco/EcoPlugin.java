@@ -6,10 +6,14 @@ import java.lang.reflect.Method;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.daniel.eco.commands.EcoResetCommand;
+import me.daniel.eco.commands.EcoViewCommand;
 import me.daniel.eco.data.ConfigApi;
+import me.daniel.eco.gui.GuiListener;
+import me.daniel.eco.gui.ViewerInventory;
 import me.daniel.eco.hooks.SellHook;
 
-public class EcoPlugin extends JavaPlugin {
+public final class EcoPlugin extends JavaPlugin {
 
 	public static EcoPlugin instance;
 	public static ConfigApi data;
@@ -21,12 +25,20 @@ public class EcoPlugin extends JavaPlugin {
 		instance = this;
 		data = new ConfigApi(new File(getDataFolder(), "data.yml"));
 		SellHook.enable();
+		
+		Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
+		
+		
+		getCommand("eareset").setExecutor(new EcoResetCommand());
+		getCommand("eadata").setExecutor(new EcoViewCommand());
 	}
 	
 	@Override
 	public void onDisable() {
 		SellHook.disable();
 		if(data != null) data.save();
+		
+		ViewerInventory.onDisable();
 	}
 	
 	private boolean doDannyChecks() {
