@@ -15,56 +15,56 @@ import me.daniel.eco.hooks.SellHook;
 
 public final class EcoPlugin extends JavaPlugin {
 
-	public static EcoPlugin instance;
-	public static ConfigApi data;
-	
-	@Override
-	public void onEnable() {
-		if(!doDannyChecks()) return;
-		
-		instance = this;
-		data = new ConfigApi(new File(getDataFolder(), "data.yml"));
-		SellHook.enable();
-		
-		Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
-		
-		
-		getCommand("eareset").setExecutor(new EcoResetCommand());
-		getCommand("eadata").setExecutor(new EcoViewCommand());
-	}
-	
-	@Override
-	public void onDisable() {
-		SellHook.disable();
-		if(data != null) data.save();
-		
-		ViewerInventory.onDisable();
-	}
-	
-	private boolean doDannyChecks() {
-		if(Bukkit.getPluginManager().getPlugin("Essentials") == null) {
-			getLogger().severe("Disabling because Essentials was not found.");
-			setEnabled(false);
-			return false;
-		}
-		
-		if(!hasDannyEssentials()) {
-			getLogger().severe("Disabling because the Essentials on the server is not modified by Danny.");
-			setEnabled(false);
-			return false;
-		}
-		
-		return true;
-	}
-	
-	private boolean hasDannyEssentials() {
-		Class<?> clazz = com.earth2me.essentials.commands.Commandsell.class;
-		Method[] methods = clazz.getMethods();
-		
-		for(Method method : methods) {
-			if(method.getName().equalsIgnoreCase("onSell")) return true;
-		}
-		
-		return false;
-	}
+    public static EcoPlugin instance;
+    public static ConfigApi data;
+    
+    @Override
+    public void onEnable() {
+        if(!doDannyChecks()) return;
+        
+        instance = this;
+        data = new ConfigApi(new File(getDataFolder(), "data.yml"));
+        SellHook.enable();
+        
+        Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new DataSubscriptionTask(), DataSubscriptionTask.DELAY, DataSubscriptionTask.DELAY);
+        
+        getCommand("eareset").setExecutor(new EcoResetCommand());
+        getCommand("eadata").setExecutor(new EcoViewCommand());
+    }
+    
+    @Override
+    public void onDisable() {
+        SellHook.disable();
+        if(data != null) data.save();
+        
+        ViewerInventory.onDisable();
+    }
+    
+    private boolean doDannyChecks() {
+        if(Bukkit.getPluginManager().getPlugin("Essentials") == null) {
+            getLogger().severe("Disabling because Essentials was not found.");
+            setEnabled(false);
+            return false;
+        }
+        
+        if(!hasDannyEssentials()) {
+            getLogger().severe("Disabling because the Essentials on the server is not modified by Danny.");
+            setEnabled(false);
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private boolean hasDannyEssentials() {
+        Class<?> clazz = com.earth2me.essentials.commands.Commandsell.class;
+        Method[] methods = clazz.getMethods();
+        
+        for(Method method : methods) {
+            if(method.getName().equalsIgnoreCase("onSell")) return true;
+        }
+        
+        return false;
+    }
 }

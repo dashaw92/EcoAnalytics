@@ -20,6 +20,7 @@ public final class ItemBuilder {
         im.setDisplayName(name);
         im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         im.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+        im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         im.setLore(Arrays.asList(lore));
         is.setItemMeta(im);
         return is;

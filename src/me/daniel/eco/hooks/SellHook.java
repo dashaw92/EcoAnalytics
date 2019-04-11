@@ -12,23 +12,23 @@ import me.daniel.eco.EcoPlugin;
 import me.daniel.eco.gui.ViewerInventory;
 
 public final class SellHook {
-	
-	private static int callback = -1;
-	private static BiConsumer<ItemStack, BigDecimal> run = (i, m) -> {
-	    EcoPlugin.data.update(i.getType(), i.getAmount(), m);
-	    ViewerInventory.refreshAll();
-	};
-	
-	public static void enable() {
-		if(callback != -1) return;
-		Bukkit.getConsoleSender().sendMessage("§e[EcoAnalytics] Hooking into Commandsell.");
-		callback = Commandsell.onSell(run);
-	}
-	
-	public static void disable() {
-		if(callback == -1) return;
-		Bukkit.getConsoleSender().sendMessage("§e[EcoAnalytics] Removing hook from Commandsell.");
-		Commandsell.endCallback(callback);
-	}
-	
+    
+    private static int callback = -1;
+    private static BiConsumer<ItemStack, BigDecimal> run = (i, m) -> {
+        EcoPlugin.data.update(i.getType(), i.getAmount(), m);
+        ViewerInventory.refreshAll();
+    };
+    
+    public static void enable() {
+        if(callback != -1) return;
+        Bukkit.getConsoleSender().sendMessage("§e[EcoAnalytics] Hooking into Commandsell.");
+        callback = Commandsell.onSell(run);
+    }
+    
+    public static void disable() {
+        if(callback == -1) return;
+        Bukkit.getConsoleSender().sendMessage("§e[EcoAnalytics] Removing hook from Commandsell.");
+        Commandsell.endCallback(callback);
+    }
+    
 }
