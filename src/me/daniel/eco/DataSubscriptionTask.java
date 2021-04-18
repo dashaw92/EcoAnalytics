@@ -1,6 +1,8 @@
 package me.daniel.eco;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +14,8 @@ import me.daniel.eco.data.Subscriber;
 
 public final class DataSubscriptionTask implements Runnable {
     
-    public static final long DELAY = 5 * 60 * 20;
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("d/MMM HH:mm:ss");
+    public static final long DELAY = 20;
     
     protected DataSubscriptionTask() {}
     
@@ -34,7 +37,7 @@ public final class DataSubscriptionTask implements Runnable {
     }
     
     private String getMessageFor(MaterialDelta delta) {
-        String prefix = "§f[Eco] ";
+        String prefix = "§f[Eco §7" + sdf.format(new Date()) + "§f] ";
         String format_add = "%s§7%s§f - §a+§2%d sold§7, §a+§2$%s";
         String format_same = "%s§7%s§f - §cNo changes";
         

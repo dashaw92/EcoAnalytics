@@ -1,7 +1,6 @@
 package me.daniel.eco;
 
 import java.io.File;
-import java.lang.reflect.Method;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,8 +14,16 @@ import me.daniel.eco.hooks.SellHook;
 
 public final class EcoPlugin extends JavaPlugin {
 
-    public static EcoPlugin instance;
-    public static ConfigApi data;
+    private static EcoPlugin instance;
+    private ConfigApi data;
+    
+    public static EcoPlugin getInstance() {
+        return instance;
+    }
+    
+    public ConfigApi getData() {
+        return data;
+    }
     
     @Override
     public void onEnable() {
@@ -24,9 +31,9 @@ public final class EcoPlugin extends JavaPlugin {
         
         instance = this;
         data = new ConfigApi(new File(getDataFolder(), "data.yml"));
-        SellHook.enable();
         
         Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
+        Bukkit.getPluginManager().registerEvents(new SellHook(), this);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new DataSubscriptionTask(), DataSubscriptionTask.DELAY, DataSubscriptionTask.DELAY);
         
         getCommand("eareset").setExecutor(new EcoResetCommand());
@@ -35,7 +42,6 @@ public final class EcoPlugin extends JavaPlugin {
     
     @Override
     public void onDisable() {
-        SellHook.disable();
         if(data != null) data.save();
         
         ViewerInventory.onDisable();
@@ -58,13 +64,11 @@ public final class EcoPlugin extends JavaPlugin {
     }
     
     private boolean hasDannyEssentials() {
-        Class<?> clazz = com.earth2me.essentials.commands.Commandsell.class;
-        Method[] methods = clazz.getMethods();
-        
-        for(Method method : methods) {
-            if(method.getName().equalsIgnoreCase("onSell")) return true;
+        try {
+            Class.forName("me.danny.essapi.EssItemSellEvent");
+            return true;
+        } catch(ClassNotFoundException ex) {
+            return false;
         }
-        
-        return false;
     }
 }

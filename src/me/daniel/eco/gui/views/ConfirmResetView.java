@@ -30,7 +30,7 @@ public final class ConfirmResetView extends View {
     @Override
     public void onClick(ViewerInventory viewer, ItemStack item, int slot) {
         if(item.getType() == Material.BARRIER) {
-            EcoPlugin.data.reset(viewer.getViewer());
+            EcoPlugin.getInstance().getData().reset(viewer.getViewer());
         }
         
         viewer.setView(new PageView());

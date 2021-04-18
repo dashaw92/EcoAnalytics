@@ -5,6 +5,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -19,17 +20,19 @@ import me.daniel.eco.data.Subscriber;
 import me.daniel.eco.data.Subscriber.SubscriptionStatus;
 import me.daniel.eco.gui.ItemBuilder;
 import me.daniel.eco.gui.ViewerInventory;
+import me.daniel.eco.hooks.ValueCheck;
 import net.md_5.bungee.api.ChatColor;
 
 public final class PageView extends View {
 
     private int page = 0;
     private static final NumberFormat VALUE_FORMAT = NumberFormat.getCurrencyInstance();
+    private static final NumberFormat BIG_NUMBER_FORMAT = NumberFormat.getInstance(Locale.US);
 
     @Override
     public void build(ViewerInventory viewer) {
         Inventory inv = viewer.getInventory();
-        MaterialEntry[] materials = EcoPlugin.data.getAllEntries();
+        MaterialEntry[] materials = EcoPlugin.getInstance().getData().getAllEntries();
 
         int limit = inv.getSize() - 9;
 
@@ -38,14 +41,16 @@ public final class PageView extends View {
             if(index >= materials.length) break;
             MaterialEntry entry = materials[index];
             
-            String lore1 = String.format("%sTotal sold: %s%d", ChatColor.YELLOW, ChatColor.LIGHT_PURPLE, entry.sold);
-            String lore2 = String.format("%sTotal value: %s$%s", ChatColor.YELLOW, ChatColor.LIGHT_PURPLE, NumberFormat.getNumberInstance().format(entry.value));
+            String lore1 = String.format("%sTotal sold: %s%s", ChatColor.YELLOW, ChatColor.LIGHT_PURPLE, BIG_NUMBER_FORMAT.format(entry.sold));
+            String lore2 = String.format("%sTotal value: %s%s", ChatColor.YELLOW, ChatColor.LIGHT_PURPLE, VALUE_FORMAT.format(entry.value));
             
-            ItemStack item = ItemBuilder.item(entry.material, ChatColor.GOLD + entry.material.name(), lore1, lore2);
+            String lore3 = String.format("%sPrice per unit: %s%s", ChatColor.AQUA, ChatColor.LIGHT_PURPLE, VALUE_FORMAT.format(ValueCheck.CHECKER.valueOf(entry.material)));
+            
+            ItemStack item = ItemBuilder.item(entry.material, ChatColor.GOLD + entry.material.name(), lore1, lore2, "", lore3);
             
             if(Subscriber.get(viewer.getViewer()).isSubbed(entry.material)) {
                 ItemMeta im = item.getItemMeta();
-                im.setLore(Arrays.asList(lore1, lore2, "", "" + ChatColor.GREEN + ChatColor.ITALIC + "Subscribed"));
+                im.setLore(Arrays.asList(lore1, lore2, "", lore3, "", "" + ChatColor.GREEN + ChatColor.ITALIC + "Subscribed"));
                 im.addEnchant(Enchantment.DURABILITY, 1, true);
                 item.setItemMeta(im);
             }
@@ -59,7 +64,7 @@ public final class PageView extends View {
                 page + 1, 
                 ChatColor.YELLOW, 
                 ChatColor.LIGHT_PURPLE, 
-                (EcoPlugin.data.getAmountOfKeys() / limit) + 1
+                (EcoPlugin.getInstance().getData().getAmountOfKeys() / limit) + 1
         );
         
         inv.setItem(inv.getSize() - 9, ItemBuilder.item(Material.RED_STAINED_GLASS_PANE, ChatColor.DARK_RED + "Back a page", page_msg));
@@ -68,7 +73,7 @@ public final class PageView extends View {
         inv.setItem(inv.getSize() - 5, ItemBuilder.item(Material.KNOWLEDGE_BOOK, 
                                                         ChatColor.BLUE + "Click an item to subscribe to it!",
                                                         ChatColor.DARK_AQUA + "You will be messaged about subscribed",
-                                                        ChatColor.DARK_AQUA + "items every " + (DataSubscriptionTask.DELAY / 20 / 60) + " minutes."
+                                                        ChatColor.DARK_AQUA + "items every " + (DataSubscriptionTask.DELAY / 20 / 60) + " minute(s)."
         ));
         
         if(viewer.getViewer().hasPermission("ntx.eco.reset")) {
@@ -85,7 +90,7 @@ public final class PageView extends View {
         if(slot >= limit) {
             if(item.getType() == Material.BARRIER && viewer.getViewer().hasPermission("ntx.eco.reset")) viewer.setView(new ConfirmResetView());
             if(item.getType() == Material.RED_STAINED_GLASS_PANE && page > 0) page--;
-            if(item.getType() == Material.LIME_STAINED_GLASS_PANE && page < EcoPlugin.data.getAmountOfKeys() / limit) page++;
+            if(item.getType() == Material.LIME_STAINED_GLASS_PANE && page < EcoPlugin.getInstance().getData().getAmountOfKeys() / limit) page++;
             return;
         }
         

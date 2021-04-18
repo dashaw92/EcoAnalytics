@@ -1,34 +1,18 @@
 package me.daniel.eco.hooks;
 
-import java.math.BigDecimal;
-import java.util.function.BiConsumer;
-
-import org.bukkit.Bukkit;
-import org.bukkit.inventory.ItemStack;
-
-import com.earth2me.essentials.commands.Commandsell;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
 import me.daniel.eco.EcoPlugin;
 import me.daniel.eco.gui.ViewerInventory;
+import me.danny.essapi.EssItemSellEvent;
 
-public final class SellHook {
+public final class SellHook implements Listener {
     
-    private static int callback = -1;
-    private static BiConsumer<ItemStack, BigDecimal> run = (i, m) -> {
-        EcoPlugin.data.update(i.getType(), i.getAmount(), m);
+    @EventHandler
+    public void onSell(EssItemSellEvent event) {
+        EcoPlugin.getInstance().getData().update(event.getSoldItem(), event.getValue());
         ViewerInventory.refreshAll();
-    };
-    
-    public static void enable() {
-        if(callback != -1) return;
-        Bukkit.getConsoleSender().sendMessage("§e[EcoAnalytics] Hooking into Commandsell.");
-        callback = Commandsell.onSell(run);
-    }
-    
-    public static void disable() {
-        if(callback == -1) return;
-        Bukkit.getConsoleSender().sendMessage("§e[EcoAnalytics] Removing hook from Commandsell.");
-        Commandsell.endCallback(callback);
     }
     
 }

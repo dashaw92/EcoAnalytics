@@ -15,7 +15,7 @@ public final class EcoResetCommand implements CommandExecutor {
             return true;
         }
         
-        EcoPlugin.data.reset(sender);
+        EcoPlugin.getInstance().getData().reset(sender);
         return true;
     }
     

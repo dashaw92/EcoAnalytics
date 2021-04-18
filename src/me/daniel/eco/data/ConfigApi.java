@@ -11,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import me.daniel.eco.EcoPlugin;
 import net.md_5.bungee.api.ChatColor;
@@ -36,21 +37,21 @@ public final class ConfigApi {
         yml = YamlConfiguration.loadConfiguration(file);
     }
     
-    public void update(Material material, int amount, BigDecimal value) {
+    public void update(ItemStack item, BigDecimal value) {
         checkFile();
         
-        MaterialTracker.track(new MaterialEntry(material, amount, value));
+        MaterialTracker.track(new MaterialEntry(item.getType(), item.getAmount(), value));
         
-        String mat_path = String.format(MATERIAL_PATH, material.name());
+        String mat_path = String.format(MATERIAL_PATH, item.getType().name());
         String amt_path = String.format(AMOUNT_PATH, mat_path);
         String val_path = String.format(VALUE_PATH, mat_path);
         
         if(!yml.contains(mat_path)) {
-            yml.set(mat_path, material.name());
-            yml.set(amt_path, amount);
+            yml.set(mat_path, item.getType().name());
+            yml.set(amt_path, item.getAmount());
             yml.set(val_path, value.toString());
         } else {
-            int newAmt = amount + getAmount(amt_path);
+            int newAmt = item.getAmount() + getAmount(amt_path);
             BigDecimal newVal = value.add(getValue(val_path));
             
             yml.set(amt_path, newAmt);
@@ -85,7 +86,7 @@ public final class ConfigApi {
         try {
             yml.save(file);
         } catch(IOException e) {
-            EcoPlugin.instance.getLogger().severe("Could not save to " + file.getAbsolutePath());
+            EcoPlugin.getInstance().getLogger().severe("Could not save to " + file.getAbsolutePath());
         }
     }
     
@@ -100,7 +101,6 @@ public final class ConfigApi {
         
         String msg = String.format("%s[EcoAnalytics] Data reset by %s%s.", ChatColor.YELLOW, name, ChatColor.YELLOW); 
         Bukkit.broadcast(msg, "ntx.eco");
-        Bukkit.getConsoleSender().sendMessage(msg);
     }
     
     private int getAmount(String path) {
